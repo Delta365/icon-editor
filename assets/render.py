@@ -33,20 +33,22 @@ ACCENT    = (188, 72, 40)
 
 SS = 3  # supersample factor
 
-FONTS_DIR = (
-    "/Users/sanjivanrane/Library/Application Support/Claude/"
-    "local-agent-mode-sessions/skills-plugin/"
-    "1dd479fc-62d9-4a93-9518-eb038241088a/"
-    "25c6f461-df4e-4e19-8dcc-0763f9bd0b9d/"
-    "skills/canvas-design/canvas-fonts"
-)
+# Vendored alongside this script (both OFL) so the render is reproducible for
+# anyone who clones the repo, rather than depending on a local font library.
+FONTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
 
-DISPLAY = "InstrumentSerif-Regular.ttf"
-MONO    = "GeistMono-Regular.ttf"
+DISPLAY = "SUSE[wght].ttf"
+MONO    = "GeistMono[wght].ttf"
 
 
-def font(name: str, size: int) -> ImageFont.FreeTypeFont:
-    return ImageFont.truetype(os.path.join(FONTS_DIR, name), size * SS)
+def font(name: str, size: int, weight: str = "Regular") -> ImageFont.FreeTypeFont:
+    """Load a variable font at one of its named weights."""
+    f = ImageFont.truetype(os.path.join(FONTS_DIR, name), size * SS)
+    try:
+        f.set_variation_by_name(weight)
+    except Exception:
+        pass  # Static build, or FreeType without variation support.
+    return f
 
 
 def grain(img: Image.Image, amount: int = 3, seed: int = 11) -> Image.Image:
@@ -117,14 +119,22 @@ def render_cover(path: str) -> None:
     ML, MR = 116, 116
     inner = W - ML - MR
 
-    f_title = font(DISPLAY, 92)
-    f_sub   = font(MONO, 13)
-    f_tick  = font(MONO, 13)
-    f_note  = font(MONO, 12)
+    # SUSE Light: enough presence to anchor the sheet, not enough to compete
+    # with the heavy end of the series.
+    f_title = font(DISPLAY, 92, "Light")
+    f_sub   = font(MONO, 13, "Regular")
+    f_tick  = font(MONO, 13, "Regular")
+    f_note  = font(MONO, 12, "Regular")
 
     # --- title block, upper left ------------------------------------------- #
-    text(d, (ML, 104), "Icon Editor", f_title, INK, anchor="la")
-    rule(d, ML, 232, ML + 232, 232, INK, 1.4)
+    title = "Icon Editor"
+    text(d, (ML, 104), title, f_title, INK, anchor="la")
+
+    # The rule is cut to the measure of the word above it rather than to a
+    # round number, so the block reads as one object.
+    title_w = d.textlength(title, font=f_title) / SS
+    rule(d, ML, 232, ML + title_w, 232, INK, 1.4)
+
     text(d, (ML, 252), "A CONTINUOUS WEIGHT AXIS FOR VECTOR FORM",
          f_sub, INK_MID, anchor="la", spacing_px=1.6)
 
