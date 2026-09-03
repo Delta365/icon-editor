@@ -1,0 +1,114 @@
+name: Bug report
+description: Something is broken or not behaving as expected
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. The more detail you can
+        give, the faster we can reproduce and fix it.
+
+  - type: input
+    id: figma-version
+    attributes:
+      label: Figma version
+      description: Help → About Figma in the desktop app.
+      placeholder: e.g. 124.6.5
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: e.g. macOS 14.5, Windows 11
+    validations:
+      required: true
+
+  - type: dropdown
+    id: editor
+    attributes:
+      label: Where did this happen?
+      options:
+        - Figma desktop app
+        - Figma web (figma.com)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: layer-kind
+    attributes:
+      label: What did you have selected?
+      description: |
+        This matters a lot. Growing and thinning use completely different
+        mechanisms, and thinning only works on real vector paths — so knowing
+        the layer type usually narrows the cause immediately. The Figma right
+        panel names the type at the top when a single layer is selected.
+      options:
+        - Filled vector path
+        - Stroked vector path
+        - Rectangle, ellipse, star or polygon
+        - Boolean operation
+        - A frame, group or component containing several of the above
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Which direction were you going?
+      options:
+        - Thinning (negative weight)
+        - Thickening (positive weight)
+        - Both
+        - Not applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: A clear description of the bug and what you expected instead.
+      placeholder: When I dragged the weight to X, Y happened — I expected Z.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps so we can hit the same bug.
+      placeholder: |
+        1. Select the icon
+        2. Drag the weight slider to -1
+        3. See Y
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Plugin console output (if any)
+      description: |
+        Plugins → Development → **Open Console** in Figma. Paste any red
+        errors here. Often this is enough to diagnose the issue immediately.
+      render: text
+
+  - type: textarea
+    id: path-data
+    attributes:
+      label: Path data (optional, but very useful for geometry bugs)
+      description: |
+        If a shape came out wrong after thinning, the path itself is usually
+        the fastest way to reproduce it. Select the layer, then Copy as → Copy
+        as SVG, and paste it here.
+      render: xml
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / GIFs (optional)
+      description: Drag and drop images here.

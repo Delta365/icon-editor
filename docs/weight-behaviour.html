@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Icon Editor — weight behaviour</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        background: #fff;
+        color: #1e1e1e;
+        font: 13px/1.55 Inter, -apple-system, system-ui, sans-serif;
+      }
+      h1 { font-size: 16px; margin: 0 0 6px; }
+      p { max-width: 74ch; margin: 0 0 10px; color: #565656; }
+      table { border-collapse: collapse; margin: 4px 0 18px; }
+      th, td { text-align: left; padding: 4px 18px 4px 0; }
+      th { font-weight: 600; color: #1e1e1e; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      section { border-top: 1px solid #e6e6e6; padding: 18px 0 4px; }
+      h2 { font-size: 12px; font-weight: 600; margin: 0 0 4px; }
+      h2 small { font-weight: 400; color: #767676; margin-left: 6px; }
+      .row { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 12px; }
+      .cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+      .cell svg { display: block; color: #1e1e1e; }
+      .cell span { color: #767676; font-variant-numeric: tabular-nums; }
+      .cell.zero span { color: #1e1e1e; font-weight: 600; }
+      @media (prefers-color-scheme: dark) {
+        body { background: #2c2c2c; color: #e5e5e5; }
+        p { color: #a0a0a0; }
+        th { color: #e5e5e5; }
+        section { border-color: #444; }
+        .cell svg { color: #e5e5e5; }
+        .cell.zero span { color: #e5e5e5; }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Weight behaviour</h1>
+    <p>
+      The weight axis runs −2 to +2&nbsp;px and is <em>relative</em>: it changes a vector's apparent
+      thickness by that amount. The two directions are implemented differently, because paint can be
+      added to a shape but never removed.
+    </p>
+
+    <table>
+      <tr><th>Direction</th><th>Mechanism</th><th>Curves</th></tr>
+      <tr>
+        <td>Positive</td>
+        <td>Fill-matched stroke, CENTER aligned</td>
+        <td>Preserved exactly</td>
+      </tr>
+      <tr>
+        <td>Negative</td>
+        <td>Path rewritten by geometric offset</td>
+        <td>Flattened to polylines</td>
+      </tr>
+    </table>
+
+    <p>
+      A CENTER-aligned stroke of <code>w</code> widens a wall by <code>w</code>, but a geometric
+      offset of <code>d</code> widens it by <code>2d</code> — it moves both edges. The plugin
+      therefore offsets by <code>delta&nbsp;/&nbsp;2</code>, so −0.5 removes exactly what +0.5 adds.
+      The sweeps below are drawn from that same arithmetic.
+    </p>
+    <p>
+      Returning to 0 restores the stored original path byte-for-byte, so nothing is lost by
+      exploring. Geometry here is hand-authored and computed analytically, keeping this page
+      self-contained and free of third-party icon artwork.
+    </p>
+
+    <div id="out"></div>
+
+    <script>
+      const STEPS = [-2, -1, -0.5, 0, 0.5, 1, 2];
+
+      // Each shape returns SVG for a given delta. Negative deltas move every
+      // edge inward by delta/2 (walls close, holes open); positive deltas keep
+      // the original geometry and add a stroke, exactly as the plugin does.
+      const SHAPES = [
+        {
+          name: "Circular ring",
+          note: "a counter — grows inward as the wall thickens",
+          render(d) {
+            const grow = d > 0 ? d : 0;
+            const shrink = d < 0 ? -d / 2 : 0;
+            const outer = 10 - shrink;
+            const inner = 5 + shrink;
+            if (outer <= 0 || inner >= outer) return "";
+            const ring = (r) =>
+              `M 12 ${12 - r} A ${r} ${r} 0 1 0 12 ${12 + r} A ${r} ${r} 0 1 0 12 ${12 - r} Z`;
+            return `<path d="${ring(outer)} ${ring(inner)}" fill-rule="evenodd"
+              ${grow ? `stroke="currentColor" stroke-width="${grow}"` : ""} />`;
+          },
+        },
+        {
+          name: "Square ring",
+          note: "sharp corners — miter joins hold their shape",
+          render(d) {
+            const grow = d > 0 ? d : 0;
+            const s = d < 0 ? -d / 2 : 0;
+            const o = 2 + s, oe = 22 - s, i = 7 - s, ie = 17 + s;
+            if (oe <= o || ie <= i || i <= o) return "";
+            return `<path d="M ${o} ${o} L ${oe} ${o} L ${oe} ${oe} L ${o} ${oe} Z
+              M ${i} ${i} L ${ie} ${i} L ${ie} ${ie} L ${i} ${ie} Z" fill-rule="evenodd"
+              ${grow ? `stroke="currentColor" stroke-width="${grow}" stroke-linejoin="miter"` : ""} />`;
+          },
+        },
+        {
+          name: "Parallel bars",
+          note: "a 2 px gap — closes going up, opens going down",
+          render(d) {
+            const grow = d > 0 ? d : 0;
+            const s = d < 0 ? -d / 2 : 0;
+            const a0 = 7 + s, a1 = 11 - s, b0 = 13 + s, b1 = 17 - s;
+            if (a1 <= a0) return "";
+            return `<path d="M ${a0} ${4 + s} L ${a1} ${4 + s} L ${a1} ${20 - s} L ${a0} ${20 - s} Z
+              M ${b0} ${4 + s} L ${b1} ${4 + s} L ${b1} ${20 - s} L ${b0} ${20 - s} Z"
+              ${grow ? `stroke="currentColor" stroke-width="${grow}"` : ""} />`;
+          },
+        },
+      ];
+
+      document.getElementById("out").innerHTML = SHAPES.map((shape) => {
+        const cells = STEPS.map((step) => {
+          const body = shape.render(step);
+          const label = step > 0 ? "+" + step : String(step);
+          return `<div class="cell${step === 0 ? " zero" : ""}">
+              <svg viewBox="0 0 24 24" width="72" height="72" fill="currentColor">
+                ${body || ""}
+              </svg>
+              <span>${body ? label : label + " ✕"}</span>
+            </div>`;
+        }).join("");
+        return `<section>
+            <h2>${shape.name}<small>${shape.note}</small></h2>
+            <div class="row">${cells}</div>
+          </section>`;
+      }).join("");
+    </script>
+  </body>
+</html>

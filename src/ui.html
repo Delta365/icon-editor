@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Icon Editor</title>
+    <!--STYLES-->
+  </head>
+  <body>
+    <main class="panel">
+      <section class="block" id="weight-block">
+        <div class="block-head">
+          <h2>Weight</h2>
+          <div class="field">
+            <input
+              id="delta-field"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Weight change in pixels"
+            />
+            <span class="unit">px</span>
+          </div>
+        </div>
+
+        <div class="slider-wrap">
+          <input
+            id="delta-slider"
+            class="slider"
+            type="range"
+            min="-2"
+            max="2"
+            step="0.05"
+            value="0"
+            aria-label="Weight change"
+          />
+          <span class="centre-tick" aria-hidden="true"></span>
+        </div>
+
+        <div class="presets" id="presets">
+          <button type="button" data-delta="-1">−1</button>
+          <button type="button" data-delta="-0.5">−0.5</button>
+          <button type="button" data-delta="0">0</button>
+          <button type="button" data-delta="0.5">+0.5</button>
+          <button type="button" data-delta="1">+1</button>
+        </div>
+
+        <p class="count" id="count"></p>
+      </section>
+
+      <hr class="rule" />
+
+      <section class="block">
+        <div class="block-head">
+          <h2>Match weight</h2>
+        </div>
+        <p class="hint">
+          Pick a reference vector, then select the layers that should match it.
+        </p>
+
+        <div class="reference" id="reference" hidden>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="ref-name" id="ref-name"></span>
+          <span class="ref-weight" id="ref-weight"></span>
+          <button type="button" class="icon-btn" id="clear" aria-label="Clear reference">
+            &times;
+          </button>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" id="pick">Pick reference</button>
+          <button type="button" class="btn btn-primary" id="apply">Apply to selection</button>
+        </div>
+      </section>
+
+      <p class="status" id="status"></p>
+    </main>
+    <!--SCRIPT-->
+  </body>
+</html>

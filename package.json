@@ -1,0 +1,19 @@
+{
+  "name": "icon-editor",
+  "version": "0.1.0",
+  "description": "Figma plugin: a standalone vector weight editor. Set the stroke weight of selected vectors, or match one vector's weight to another.",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.108.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "clipper-lib": "^6.4.2"
+  }
+}
