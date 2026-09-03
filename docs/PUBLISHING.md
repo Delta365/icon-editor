@@ -8,12 +8,10 @@ copy blocks are written to be pasted verbatim.
 - [ ] `npm run build` — the Community submission ships `dist/`, and `dist/` is
       gitignored, so it must exist locally at publish time.
 - [ ] Open the plugin once in Figma and exercise both directions on a real icon.
-- [ ] **Swap the manifest `id`.** `manifest.json` currently carries a
-      placeholder. Figma mints the real id when you first create the plugin
-      through *Plugins → Development → New plugin* (or on first publish), and
-      the manifest must carry that value. Stored state uses *shared* plugin data
-      under the `iconEditor` namespace precisely so this swap orphans nothing.
-- [ ] Commit the real id.
+- [x] **Manifest `id`** — done. `manifest.json` carries the real id Figma
+      minted, `1677145479885022789`. Leave it alone; it is what ties a build to
+      the Community listing. Stored state uses *shared* plugin data under the
+      `iconEditor` namespace, so it never depended on this value anyway.
 
 ## 2. Assets
 

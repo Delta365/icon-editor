@@ -109,7 +109,9 @@ listing copy are in [`docs/PUBLISHING.md`](docs/PUBLISHING.md).
 
 ### About the manifest `id`
 
-The `id` in `manifest.json` is a placeholder. It has to be present and valid — the plugin-data APIs
-throw without one — but Figma mints the canonical id when you create or publish the plugin through
-its own UI. Replace the placeholder with that value when you get it. Stored state uses shared plugin
-data precisely so that swap does not orphan anything.
+`manifest.json` carries the canonical id Figma minted for this plugin. It must be present and
+valid — the plugin-data APIs throw without one — and it must not be edited by hand, since it is
+what ties a build to its Community listing.
+
+Stored state deliberately does not depend on it: shared plugin data is namespaced by the string
+`iconEditor`, so anything a user has already edited survives the id changing.
