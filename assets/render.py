@@ -119,9 +119,7 @@ def render_cover(path: str) -> None:
     ML, MR = 116, 116
     inner = W - ML - MR
 
-    # SUSE Light: enough presence to anchor the sheet, not enough to compete
-    # with the heavy end of the series.
-    f_title = font(DISPLAY, 92, "Light")
+    f_title = font(DISPLAY, 92, "Medium")
     f_sub   = font(MONO, 13, "Regular")
     f_tick  = font(MONO, 13, "Regular")
     f_note  = font(MONO, 12, "Regular")
